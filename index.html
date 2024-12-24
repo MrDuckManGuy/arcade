@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html>
+<head>
+	<title>arcade</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+</head>
 <body>
 	<style>
 		* {
@@ -167,7 +172,7 @@
 		}
 		
 		function update() {
-			if (ball.x + ball.width >= width || ball.x < 0) {
+			if (ball.x + ball.width >= width || ball.x <= 0) {
 				// side collision
 				ball.vx *= -1;
 				playSound(494, 25, 0.3);
