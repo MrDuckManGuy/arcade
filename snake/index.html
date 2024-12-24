@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>arcade</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<link rel="manifest" href="manifest.json">
+</head>
+<body>
+	<style>
+		* {
+			user-select: none;
+			-webkit-user-select: none;
+			color: white;
+			font-family: monospace;
+		}
+		body {
+			background-color: #222;
+			margin: 0;
+			width: 400px;
+		}
+		button {
+			background-color: transparent;
+		}
+		pre {
+			font-size: 4em;
+		}
+		.ui-element {
+			display: flex;
+			max-width: 100%;
+		}
+		p {
+			display: auto;
+		}
+	</style>
+	
+	<canvas id="canvas" width="400" height="300"></canvas>
+	<div class="ui-element" style="flex-direction: row-reverse;">
+		<button id="mute">unmute</button>
+	</div>
+	<div class="ui-element" style="justify-content: center;">
+		<pre id="score">SCORE 0</pre>
+	</div>
+	
+	<script>
+		const canvas = document.getElementById("canvas");
+		const width = canvas.offsetWidth;
+		const height = canvas.offsetHeight;
+		const ctx = canvas.getContext("2d");
+		
+		let score = 0;
+		const scoreRender = document.getElementById("score");
+		
+		let gameState = "ready";
+
+        const snake = {
+            segmentWidth: 10,
+            segmentHeight: 10
+        };
+
+        const food = {
+            x: 16,
+            y: 16,
+            width: 10,
+            height: 10
+        };
+		
+		function initSnake() {
+            snake.segments = [{ x: 0, y: 0 }];
+		}
+
+        function initFood() {
+            food.x = 16;
+            food.y = 16;
+        }
+		
+		function resetGame() {
+			gameState = "ready";
+			initPaddle();
+			initBall();
+			score = 0;
+			scoreRender.textContent = "SCORE 0";
+		}
+		
+		function addScore() {
+			score++;
+			scoreRender.textContent = `SCORE ${score}`;
+		}
+		
+		function update() {}
+		
+		function draw() {
+			ctx.fillStyle = "black";
+			ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = "green";
+            for (let segment of snake.segments) {
+                ctx.fillRect(segment.x, segment.y, snake.segmentWidth, snake.segmentHeight);
+            }
+			
+			ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, food.width, food.height);
+		}
+		
+		// init
+		initSnake();
+		initFood();
+		
+		// game loop
+		setInterval(() => {
+			draw();
+			if (gameState == "running") {
+				update();
+			}
+		}, 1000 / 60);
+	</script>
+</body>
+</html>
