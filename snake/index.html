@@ -114,8 +114,8 @@
 		}
 		
 		function update() {
-			snake.segments[0].x += dirX;
-			snake.segments[0].y += dirY;
+			snake.segments[0].x = Math.min(Math.max(0, snake.segments[0].x + dirX), tileCount - 1);
+			snake.segments[0].y = Math.min(Math.max(0, snake.segments[0].y + dirY), tileCount - 1);
 		}
 		
 		function draw() {
