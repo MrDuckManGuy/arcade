@@ -57,9 +57,9 @@
 		let dirX = 0;
 		let dirY = 0;
 
-		let prevX, prevY, newX, newY;
+		let prevTouchX, prevTouchY, newTouchX, newTouchY;
 		
-		let gameState = "running";
+		let gameState = "ready";
 
 		const snake = {
 			segmentWidth: tileSize,
@@ -82,26 +82,29 @@
 
 		addEventListener("touchstart", (e) => {
 			e.preventDefault();
-			prevX = e.touches[0].clientX;
-			prevY = e.touches[0].clientY;
+			prevTouchX = e.touches[0].clientX;
+			prevTouchY = e.touches[0].clientY;
 		}, { passive: false });
 
 		addEventListener("touchend", (e) => {
-			newX = e.changedTouches[0].clientX;
-			newY = e.changedTouches[0].clientY;
-			if (Math.abs(newX - prevX) > Math.abs(newY - prevY)) {
-				if (newX > prevX) dirX = 1;
-				else if (newX < prevX) dirX = -1;
+			newTouchX = e.changedTouches[0].clientX;
+			newTouchY = e.changedTouches[0].clientY;
+			if (Math.abs(newTouchX - prevTouchX) > Math.abs(newTouchY - prevTouchY)) {
+				if (newTouchX > prevTouchX) dirX = 1;
+				else if (newTouchX < prevTouchX) dirX = -1;
 				dirY = 0;
-			} else if (Math.abs(newX - prevX) < Math.abs(newY - prevY)) {
-				if (newY > prevY) dirY = 1;
-				else if (newY < prevY) dirY = -1;
+			} else if (Math.abs(newTouchX - prevTouchX) < Math.abs(newTouchY - prevTouchY)) {
+				if (newTouchY > prevTouchY) dirY = 1;
+				else if (newTouchY < prevTouchY) dirY = -1;
 				dirX = 0;
+			}
+			if (gameState == "ready") {
+				gameState = "running";
 			}
 		}, { passive: false });
 		
 		function resetGame() {
-			// gameState = "ready";
+			gameState = "ready";
 			initSnake();
 			initFood();
 			score = 0;
@@ -116,10 +119,22 @@
 		function checkFoodCollision() {
 			return snake.segments[0].x == food.x && snake.segments[0].y == food.y;
 		}
+
+		function checkBorderCollision() {
+			let head = snake.segments[0];
+			return snake.prevX == head.x && snake.prevY == head.y;
+		}
 		
 		function update() {
-			snake.segments[0].x = Math.min(Math.max(0, snake.segments[0].x + dirX), tileCount - 1);
-			snake.segments[0].y = Math.min(Math.max(0, snake.segments[0].y + dirY), tileCount - 1);
+			let head = snake.segments[0];
+			snake.prevX = head.x;
+			snake.prevY = head.y;
+			head.x = Math.min(Math.max(0, head.x + dirX), tileCount - 1);
+			head.y = Math.min(Math.max(0, head.y + dirY), tileCount - 1);
+			if (checkBorderCollision()) {
+				resetGame();
+				return;
+			}
 			if (checkFoodCollision()) {
 				initFood();
 				addScore();
