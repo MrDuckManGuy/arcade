@@ -54,9 +54,7 @@
 		const tileCount = 16;
 		const tileSize = width / tileCount;
 
-		let dirX = 0;
-		let dirY = 0;
-
+		let dirX, dirY;
 		let prevTouchX, prevTouchY, newTouchX, newTouchY;
 		
 		let gameState = "ready";
@@ -73,11 +71,15 @@
 		
 		function initSnake() {
 			snake.segments = [{ x: 0, y: 0 }];
+			dirX = 0;
+			dirY = 0;
 		}
 
 		function initFood() {
-			food.x = Math.floor(Math.random() * tileCount);
-			food.y = Math.floor(Math.random() * tileCount);
+			do {
+				food.x = Math.floor(Math.random() * tileCount);
+				food.y = Math.floor(Math.random() * tileCount);
+			} while (snake.segments.some(segment => segment.x == food.x && segment.y == food.y));
 		}
 
 		addEventListener("touchstart", (e) => {
