@@ -145,10 +145,20 @@
 			let head = snake.segments[snake.segments.length - 1];
 			return snake.prevX == head.x && snake.prevY == head.y;
 		}
+
+		function checkSegmentCollision() {
+			let head = snake.segments[snake.segments.length - 1];
+			for (let segment of snake.segments) {
+				if (head.x == segment.x && head.y == segment.y && head != segment) {
+					return true;
+				}
+			}
+			return false;
+		}
 		
 		function update() {
 			advanceSnake();
-			if (checkBorderCollision()) {
+			if (checkBorderCollision() || checkSegmentCollision()) {
 				resetGame();
 				return;
 			}
