@@ -35,8 +35,9 @@
 	</style>
 	
 	<canvas id="canvas" width="400" height="400"></canvas>
-	<div class="ui-element" style="flex-direction: row-reverse; display: none;">
-		<button id="mute">unmute</button>
+	<div class="ui-element" style="justify-content: space-between;">
+		<button onclick="location.href='/index.html'">back</button>
+		<button id="mute" style="display: none;">unmute</button>
 	</div>
 	<div class="ui-element" style="justify-content: center;">
 		<pre id="score">SCORE 0</pre>
@@ -83,12 +84,12 @@
 		}
 
 		addEventListener("touchstart", (e) => {
-			e.preventDefault();
 			prevTouchX = e.touches[0].clientX;
 			prevTouchY = e.touches[0].clientY;
 		}, { passive: false });
 
 		addEventListener("touchmove", (e) => {
+			e.preventDefault();
 			newTouchX = e.touches[0].clientX;
 			newTouchY = e.touches[0].clientY;
 			if (Math.abs(newTouchX - prevTouchX) > Math.abs(newTouchY - prevTouchY)) {
