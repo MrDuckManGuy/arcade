@@ -34,7 +34,7 @@
 		}
 	</style>
 	
-	<canvas id="canvas" width="400" height="300"></canvas>
+	<canvas id="canvas" width="400" height="400"></canvas>
 	<div class="ui-element" style="flex-direction: row-reverse;">
 		<button id="mute">unmute</button>
 	</div>
@@ -50,19 +50,20 @@
 		
 		let score = 0;
 		const scoreRender = document.getElementById("score");
+
+        const tileCount = 16;
+        const tileSize = width / tileCount;
 		
 		let gameState = "ready";
 
         const snake = {
-            segmentWidth: 10,
-            segmentHeight: 10
+            segmentWidth: tileSize,
+            segmentHeight: tileSize
         };
 
         const food = {
-            x: 16,
-            y: 16,
-            width: 10,
-            height: 10
+            width: tileSize,
+            height: tileSize
         };
 		
 		function initSnake() {
@@ -70,8 +71,8 @@
 		}
 
         function initFood() {
-            food.x = 16;
-            food.y = 16;
+            food.x = 15;
+            food.y = 15;
         }
 		
 		function resetGame() {
@@ -95,11 +96,11 @@
 
             ctx.fillStyle = "green";
             for (let segment of snake.segments) {
-                ctx.fillRect(segment.x, segment.y, snake.segmentWidth, snake.segmentHeight);
+                ctx.fillRect(segment.x * tileSize, segment.y * tileSize, snake.segmentWidth, snake.segmentHeight);
             }
 			
 			ctx.fillStyle = "red";
-            ctx.fillRect(food.x, food.y, food.width, food.height);
+            ctx.fillRect(food.x * tileSize, food.y * tileSize, food.width, food.height);
 		}
 		
 		// init
