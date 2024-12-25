@@ -1,266 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset='utf-8'>
 	<title>arcade</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<link rel="manifest" href="manifest.json">
 </head>
 <body>
 	<style>
 		* {
-			-webkit-user-select: none;
-			color: white;
-			font-family: monospace;
+			box-sizing: border-box;
+		}
+		html {
+			background-color: #222;
 		}
 		body {
-			background-color: #222;
-			margin: 0;
-			width: 400px;
+			background-color: #333;
+			height: 100vh;
+			margin: 25px;
+			padding: 25px;
 		}
-		button {
-			background-color: transparent;
-		}
-		pre {
-			font-size: 4em;
-		}
-		.ui-element {
+		.link-container {
 			display: flex;
-			max-width: 100%;
+			flex-direction: column;
 		}
-		p {
-			display: none;
+		a {
+			color: deepskyblue;
+			background-color: #444;
+			font-family: Arial, Helvetica, sans-serif;
+			text-decoration: none;
+			text-align: center;
+			padding: 5px;
+			margin-bottom: 5%;
 		}
 	</style>
-	
-	<canvas id="canvas" width="400" height="300"></canvas>
-	<div class="ui-element" style="flex-direction: row-reverse;">
-		<button id="mute">unmute</button>
+
+	<div class="link-container">
+		<a href="breakout/index.html">breakout</a>
+		<a href="snake/index.html">snake</a>
+		<a href="" style="pointer-events: none; color: gray;">space invaders</a>
 	</div>
-	<div class="ui-element" style="justify-content: center;">
-		<pre id="score">SCORE 0</pre>
-	</div>
-	<div>
-		<p id="xLabel">x:</p>
-		<p id="yLabel">y:</p>
-	</div>
-	
-	<script>
-		const canvas = document.getElementById("canvas");
-		const width = canvas.offsetWidth;
-		const height = canvas.offsetHeight;
-		const ctx = canvas.getContext("2d");
-		
-		const audioCtx = new AudioContext();
-		const muteBtn = document.getElementById("mute");
-		let muted = true;
-		muteBtn.onclick = () => {
-			muted = !muted;
-			muteBtn.textContent = muted ? "unmute" : "mute";
-		}
-		
-		let score = 0;
-		const scoreRender = document.getElementById("score");
-		
-		const xLabel = document.getElementById("xLabel");
-		const yLabel = document.getElementById("yLabel");
-		
-		let gameState = "ready";
-		
-		const paddle = {
-			width: 75,
-			height: 10,
-		}
-		
-		const ball = {
-			width: 10,
-			height: 10,
-		}
-		
-		const bricks = [];
-		const brickColors = [
-			"tomato",
-			"darkorange",
-			"orange",
-			"gold",
-			"lightgreen",
-			"slateblue"
-		];
-		
-		function initPaddle() {
-			paddle.x = width / 2;
-			paddle.y = height - 20;
-		}
-		
-		function initBall() {
-			ball.x = (width - ball.width) / 2;
-			ball.y = height - 40;
-			ball.vx = 1;
-			ball.vy = -1;
-		}
-		
-		function initBricks() {
-			for (let i = 0; i < 6; i++) {
-				for (let j = 0; j < 16; j++) {
-					bricks.push({
-						x: j * 25,
-						y: i * 10 + 60,
-						width: 25,
-						height: 10,
-						color: brickColors[i]
-					});
-				}
-			}
-		}
-		
-		addEventListener("touchmove", (e) => {
-			e.preventDefault();
-			let touchX = e.touches[0].clientX;
-			if (gameState == "ready") {
-				ball.x = touchX - ball.width / 2;
-			}
-			paddle.x = touchX;
-		}, { passive: false });
-		
-		addEventListener("touchstart", (e) => {
-			let touchX = e.touches[0].clientX;
-			if (gameState == "ready") {
-				ball.x = touchX - ball.width / 2;
-				gameState = "running";
-			}
-			paddle.x = touchX;
-		}, { passive: false });
-		
-		function resetGame() {
-			gameState = "ready";
-			initPaddle();
-			initBall();
-			score = 0;
-			scoreRender.textContent = "SCORE 0";
-		}
-		
-		function brickCollision(dir) {
-			for (let i in bricks) {
-				let brick = bricks[i];
-				if (
-					dir == 'y' && (ball.y == brick.y + brick.height && ball.vy < 0 || ball.y + ball.height == brick.y && ball.vy > 0) && ball.x + ball.width >= brick.x && ball.x <= brick.x + brick.width ||
-					dir == 'x' && (ball.x == brick.x + brick.width || ball.x + ball.width == brick.x) && ball.y + ball.height >= brick.y && ball.y <= brick.y + brick.height
-				) {
-					return i;
-				}
-			}
-			return -1;
-		}
-		
-		function addScore() {
-			score++;
-			scoreRender.textContent = `SCORE ${score}`;
-		}
-		
-		function playSound(freq, dur, vol) {
-			if (muted) return;
-			const oscillator = audioCtx.createOscillator();
-			oscillator.type = "square";
-			oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-			const gainNode = audioCtx.createGain();
-			gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
-			oscillator.connect(gainNode);
-			gainNode.connect(audioCtx.destination);
-			oscillator.start();
-			setTimeout(() => {
-				oscillator.stop();
-			}, dur);
-		}
-		
-		function update() {
-			if (ball.x + ball.width >= width || ball.x <= 0) {
-				// side collision
-				ball.vx *= -1;
-				playSound(494, 25, 0.3);
-			}
-			else if (brickCollision('x') >= 0) {
-				// brick collision horz.
-				let i = brickCollision('x');
-				bricks.splice(i, 1);
-				ball.vx *= -1;
-				playSound(247, 25, 0.3);
-				addScore();
-			}
-			if (ball.y == 0) {
-				// top collision
-				ball.vy = Math.abs(ball.vy);
-				playSound(247, 25, 0.3);
-			}
-			else if (ball.y + ball.width >= height || ball.y < 0) {
-				// bottom collision
-				resetGame();
-				return;
-			}
-			else if (ball.x + ball.width >= paddle.x - paddle.width / 2 && ball.x <= paddle.x + paddle.width / 2 && ball.y + ball.height == paddle.y) {
-				// paddle collision
-				ball.vy *= -1;
-				if (ball.x <= paddle.x) {
-					ball.vx = Math.abs(ball.vx) * -1;
-				} else {
-					ball.vx = Math.abs(ball.vx);
-				}
-				playSound(494, 25, 0.3);
-			}
-			else if (brickCollision('y') >= 0) {
-				// brick collision vertical
-				let i = brickCollision('y');
-				bricks.splice(i, 1);
-				ball.vy *= -1;
-				playSound(247, 25, 0.3);
-				addScore();
-			}
-			
-			if (bricks.length == 0) {
-				gameState = "ready";
-				initPaddle();
-				initBall();
-				initBricks();
-				return;
-			}
-			
-			// correct invalid x velocity
-			if (ball.x + ball.vx > width - ball.width || ball.x + ball.vx < 0) {
-				ball.vx *= -1;
-			}
-			
-			ball.x += ball.vx;
-			ball.y += ball.vy;
-			
-			xLabel.textContent = `x: ${ball.x}`;
-			yLabel.textContent = `y: ${ball.y}`;
-		}
-		
-		function draw() {
-			ctx.fillStyle = "black";
-			ctx.fillRect(0, 0, width, height);
-			
-			for (let brick of bricks) {
-				ctx.fillStyle = brick.color;
-				ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
-			}
-			
-			ctx.fillStyle = "white";
-			ctx.fillRect(paddle.x - paddle.width / 2, paddle.y, paddle.width, paddle.height);
-			
-			ctx.fillRect(ball.x, ball.y, ball.width, ball.height);
-		}
-		
-		// init
-		initPaddle();
-		initBall();
-		initBricks();
-		
-		// game loop
-		setInterval(() => {
-			draw();
-			if (gameState == "running") {
-				update();
-			}
-		}, 1000 / 120);
-	</script>
 </body>
 </html>
