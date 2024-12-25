@@ -76,8 +76,8 @@
 		}
 
 		function initFood() {
-			food.x = 15;
-			food.y = 15;
+			food.x = Math.floor(Math.random() * tileCount);
+			food.y = Math.floor(Math.random() * tileCount);
 		}
 
 		addEventListener("touchstart", (e) => {
@@ -101,9 +101,9 @@
 		}, { passive: false });
 		
 		function resetGame() {
-			gameState = "ready";
-			initPaddle();
-			initBall();
+			// gameState = "ready";
+			initSnake();
+			initFood();
 			score = 0;
 			scoreRender.textContent = "SCORE 0";
 		}
@@ -112,10 +112,18 @@
 			score++;
 			scoreRender.textContent = `SCORE ${score}`;
 		}
+
+		function checkFoodCollision() {
+			return snake.segments[0].x == food.x && snake.segments[0].y == food.y;
+		}
 		
 		function update() {
 			snake.segments[0].x = Math.min(Math.max(0, snake.segments[0].x + dirX), tileCount - 1);
 			snake.segments[0].y = Math.min(Math.max(0, snake.segments[0].y + dirY), tileCount - 1);
+			if (checkFoodCollision()) {
+				initFood();
+				addScore();
+			}
 		}
 		
 		function draw() {
@@ -141,7 +149,7 @@
 			if (gameState == "running") {
 				update();
 			}
-		}, 1000 / 15);
+		}, 1000 / 5);
 	</script>
 </body>
 </html>
